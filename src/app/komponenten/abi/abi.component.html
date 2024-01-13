@@ -1,0 +1,13 @@
+<h2>Abiturprüfungen</h2>
+
+<div *ngFor="let abi of this.daten.daten.abiPruefungen">
+    <div *ngIf="abi">
+        <h3>{{ this.daten.getNameFuerAbi(abi) }}</h3>
+        <p>Note: {{ this.daten.getNoteFuerAbi(abi) }}</p>
+        <label for="check">Abitur bereits geschrieben </label>
+        <input type="checkbox" id="check" [(ngModel)]="abi.schonGeschrieben" (change)="this.daten.speichern()">
+        <br>
+        <label *ngIf="abi.schonGeschrieben" for="note">Note: </label>
+        <input *ngIf="abi.schonGeschrieben" type="number" id="note" [(ngModel)]="abi.note" (keyup)="this.daten.speichern()">
+    </div>
+</div>

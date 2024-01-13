@@ -1,0 +1,36 @@
+<h2>{{fach?.name}}</h2>
+
+<div *ngIf="this.fach">
+    <button *ngIf="!this.hatAbiPruefung() && this.hatPlatzFuerAbipruefung()" (click)="this.abiPruefungHinzufuegen()">Abiturprüfung hinzufügen</button>
+    <button *ngIf="this.hatAbiPruefung()" (click)="this.abiPruefungEntfernen()">Abiturprüfung entfernen</button>
+ <div *ngFor="let i of this.halbjahre">
+    <h3>Halbjahr {{i}}</h3>
+    <p>Gesamtnote: {{ fach ? this.daten.getNoteFuer(fach.id, i) : '' }} ({{ fach ? this.daten.getNoteFuer(fach.id, i, false) : '' }})</p>
+    <label for="ub">Note überschreiben</label>
+    <input type="checkbox" id="ub" [(ngModel)]="this.notenUeberschreiben[i - 1]" (change)="this.ueberschreibenSpeichern()">
+    <label for="note" *ngIf="this.notenUeberschreiben[i - 1]">Note: </label>
+    <input type="number" id="note" *ngIf="this.notenUeberschreiben[i - 1]" [(ngModel)]="this.noten[i - 1]" (keyup)="this.ueberschreibenSpeichern()">
+
+    <h4>Gewichtungen</h4>
+    <button (click)="this.addGewichtung(i)">Gewichtung hinzufügen</button>
+    <div *ngFor="let g of this.fach.gewichtungen[i - 1]" class="border">
+        {{g.name}} <br>
+        <label for="gew">Gewichtung </label>
+        <input id="gew" type="number" [(ngModel)]="g.wertung" (keyup)="this.daten.speichern()">
+        <button (click)="this.gewichtungEntfernen(g, i)">Diese Gewichtung entfernen</button>
+        <button (click)="this.addLeistung(g, i)">Dieser Gewichtung eine Leistung hinzufuegen!</button>
+
+        <h5>Leistungen in {{ g.name }}</h5>
+        <div class="border" *ngFor="let l of this.getLeistungenForGewichtung(g)">
+            {{l.name}} <br>
+            <label for="n">Note </label>
+            <input id="n" type="number" [(ngModel)]="l.note" (keyup)="this.daten.speichern()">
+            <label for="auslassen"> Leistung nicht werten</label>
+            <input id="auslassen" type="checkbox" [(ngModel)]="l.auslassen" (change)="this.daten.speichern()">
+            <label *ngIf="!l.auslassen" for="wertung">Wertung: </label>
+            <input *ngIf="!l.auslassen" id="wertung" type="number" [(ngModel)]="l.wertung" (change)="this.daten.speichern()">
+            <button (click)="this.leistungEntfernen(l)">Leistung entfernen</button>
+        </div>
+    </div>
+
+</div></div>

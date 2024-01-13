@@ -1,0 +1,40 @@
+<h2>Faecher</h2>
+<div>
+  <div *ngFor="let fach of this.dataProviderService.daten.faecher"><a [routerLink]="'/fach/' + fach.id">{{fach.name}}</a>
+    <span *ngFor="let i of this.dataProviderService.getHalbjahreForFach(fach.typ)"> {{ this.dataProviderService.getNoteFuer(fach.id, i) }} </span>
+    <button (click)="this.fachEntfernen(fach)">Fach entfernen</button>
+</div>
+</div>
+<button (click)="this.fachHinzufuegen()">Fach hinzufügen</button>
+
+<h2>Abiturprüfungen</h2>
+
+<a [routerLink]="'/abi'">Anzeigen</a>
+
+<div>
+  <div *ngFor="let abi of this.dataProviderService.daten.abiPruefungen">
+    <div *ngIf="abi">{{ this.dataProviderService.getNameFuerAbi(abi) }} {{ this.dataProviderService.getNoteFuerAbi(abi) }}</div>
+  </div>
+</div>
+
+<h2>Erreichte Punkte</h2>
+<h3>Block I</h3>
+<p>{{ this.dataProviderService.getPunkteBlock1() }} Punkte</p>
+<h3>Block II</h3>
+<p>{{ this.dataProviderService.getPunkteBlock2() }} Punkte</p>
+<h3>Summe</h3>
+<p>{{ this.dataProviderService.getPunkteInsgesamt() }} Punkte, Schnitt: {{ this.dataProviderService.getSchnitt() }}</p>
+
+<h2>Prognose</h2>
+<h3>Block I Prognose</h3>
+<p>{{ this.dataProviderService.getPunkteBlock1Prognose() }} Punkte</p>
+<h3>Block II Prognose</h3>
+<p>{{ this.dataProviderService.getPunkteBlock2Prognose() }} Punkte</p>
+<h3>Summe Prognose</h3>
+<p>{{ this.dataProviderService.getPunkteInsgesamtPrognose() }} Punkte, Schnitt: {{ this.dataProviderService.getSchnittPrognose() }}</p>
+
+<button (click)="this.download()">Daten herunterladen</button>
+<button class="inpButton">
+  Aus Datei laden
+  <input title="Lade aus einer Datei" id="inp" type="file" (change)="this.open()" accept=".json">
+</button>
