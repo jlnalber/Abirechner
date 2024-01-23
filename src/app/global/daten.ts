@@ -37,6 +37,7 @@ export type Leistung = {
     halbjahr: 1 | 2 | 3 | 4,
     name: string,
     auslassen: boolean,
-    wertung: number
+    wertung: number,
+    nochNichtErhalten?: boolean
 }
 

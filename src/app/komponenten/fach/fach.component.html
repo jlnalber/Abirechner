@@ -27,6 +27,8 @@
             <input id="n" type="number" [(ngModel)]="l.note" (keyup)="this.daten.speichern()">
             <label for="auslassen"> Leistung nicht werten</label>
             <input id="auslassen" type="checkbox" [(ngModel)]="l.auslassen" (change)="this.daten.speichern()">
+            <label *ngIf="!l.auslassen" for="nochNichtErhalten" title="Wenn diese Option gesetzt wird, wird die Berechnung entsprechend angepasst bei den verlorenen Punkten.">Note noch nicht erhalten</label>
+            <input *ngIf="!l.auslassen" type="checkbox" id="nochNichtErhalten" [checked]="this.getNoteNochNichtErhalten(l)" #inputBox (change)="this.setNoteNochNichtErhalten(l, inputBox!.checked)">
             <label *ngIf="!l.auslassen" for="wertung">Wertung: </label>
             <input *ngIf="!l.auslassen" id="wertung" type="number" [(ngModel)]="l.wertung" (change)="this.daten.speichern()">
             <button (click)="this.leistungEntfernen(l)">Leistung entfernen</button>

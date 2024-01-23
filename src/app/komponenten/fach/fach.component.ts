@@ -97,6 +97,15 @@ export class FachComponent {
     }
     return false;
   }
+
+  public setNoteNochNichtErhalten(l: Leistung, val: boolean) {
+    l.nochNichtErhalten = val;
+    this.daten.speichern();
+  }
+
+  public getNoteNochNichtErhalten(l: Leistung) {
+    return l.nochNichtErhalten === true;
+  }
   
   constructor(private route: ActivatedRoute, public daten: DataProviderService) {
     route.params.subscribe(p => {

@@ -81,7 +81,7 @@ export class DataProviderService {
     this.speichern();
   }
 
-  public getNoteFuer(fach: number, hj: number, round: boolean = true, defaultValue: number = NaN): number {
+  public getNoteFuer(fach: number, hj: number, round: boolean = true, defaultValue: number = NaN, mapLeistungZuNote: (l: Leistung) => number = (i) => i.note): number {
     if (this.getFachForId(fach) === undefined) {
       return defaultValue;
     }
@@ -112,7 +112,7 @@ export class DataProviderService {
       const l = this.getLeistungenForGewichtung(g, f).filter(i => !i.auslassen && i.wertung !== 0);
       let s = 0;
       for (let i of l) {
-        s += i.note * g.wertung * i.wertung;
+        s += mapLeistungZuNote(i) * g.wertung * i.wertung;
       }
       if (l.length !== 0) {
         summeGewichtungen += g.wertung;
@@ -131,7 +131,7 @@ export class DataProviderService {
     return this.rechnePunkteBlock1(i => i, 0);
   }
 
-  public rechnePunkteBlock1(getNote: (note: number, fach: Fach) => number, defaultValue: number): number | undefined {
+  public rechnePunkteBlock1(getNote: (note: number, fach: Fach) => number, defaultValue: number, mapLeistungZuNote: (l: Leistung) => number = (i) => i.note): number | undefined {
     let p = 0;
 
     // Zuerst die Leistungsfächer
@@ -139,7 +139,7 @@ export class DataProviderService {
     if (lfs.length !== 3) {
       return undefined;
     }
-    const punkteLfs = lfs.map(f => DataProviderService.sum(this.getHalbjahreForFach(f.typ).map(hj => getNote(this.getNoteFuer(f.id, hj, true, defaultValue), f)), i => i)).sort();
+    const punkteLfs = lfs.map(f => DataProviderService.sum(this.getHalbjahreForFach(f.typ).map(hj => getNote(this.getNoteFuer(f.id, hj, true, defaultValue, mapLeistungZuNote), f)), i => i)).sort();
     p += punkteLfs[0] + 2 * (punkteLfs[1] + punkteLfs[2])
 
     // Jetzt den Rest
@@ -147,7 +147,7 @@ export class DataProviderService {
     const anrechnungsPflichtig: number[] = [];
     let anderePunkte: number[] = [];
     for (let fach of rest) {
-      const noten = this.getHalbjahreForFach(fach.typ).map(hj => getNote(this.getNoteFuer(fach.id, hj, true, defaultValue), fach)).sort();
+      const noten = this.getHalbjahreForFach(fach.typ).map(hj => getNote(this.getNoteFuer(fach.id, hj, true, defaultValue, mapLeistungZuNote), fach)).sort();
       if (fach.typ === 'bf4') {
         anrechnungsPflichtig.push(...noten);
       }
@@ -216,6 +216,40 @@ export class DataProviderService {
   public getPunkteInsgesamtPrognose(): number | undefined {
     const i = this.getPunkteBlock1Prognose();
     const ii = this.getPunkteBlock2Prognose();
+    if (i !== undefined && ii !== undefined) {
+      return i + ii;
+    }
+    return undefined;
+  }
+
+  public getVerlorenePunkteBlock1(): number | undefined {
+    const res = this.rechnePunkteBlock1((note: number, fach: Fach) => {
+      if (!isNaN(note)) {
+        return note;
+      }
+
+      return 15;
+    }, NaN, (l: Leistung) => {
+      if (l.nochNichtErhalten === true) {
+        return 15;
+      }
+      return l.note;
+    })
+
+    if (res === undefined) {
+      return undefined;
+    }
+
+    return 600 - res;
+  }
+
+  public getVerlorenePunkteBlock2(): number | undefined {
+    return 300 - 4 * DataProviderService.sum(this.daten.abiPruefungen.map(abi => abi && abi.schonGeschrieben ? abi.note : 15), i => i)
+  }
+
+  public getVerlorenePunkteInsgesamt(): number | undefined {
+    const i = this.getVerlorenePunkteBlock1();
+    const ii = this.getVerlorenePunkteBlock2();
     if (i !== undefined && ii !== undefined) {
       return i + ii;
     }
