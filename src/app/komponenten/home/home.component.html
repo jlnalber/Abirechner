@@ -25,6 +25,14 @@
 <h3>Summe</h3>
 <p>{{ this.dataProviderService.getPunkteInsgesamt() }} Punkte, Schnitt: {{ this.dataProviderService.getSchnitt() }}</p>
 
+<h2>Punkte ohne Unterpunktung</h2>
+<h3>Block I</h3>
+<p>{{ this.dataProviderService.getDefaultPunkteBlock1(5) }} Punkte</p>
+<h3>Block II</h3>
+<p>{{ this.dataProviderService.getDefaultPunkteBlock2(5) }} Punkte</p>
+<h3>Summe</h3>
+<p>{{ this.dataProviderService.getDefaultPunkteInsgesamt(5) }} Punkte, Schnitt: {{ this.dataProviderService.getSchnittDefault(5) }}</p>
+
 <h2>Verlorene Punkte</h2>
 <h3>Block I</h3>
 <p>{{ this.dataProviderService.getVerlorenePunkteBlock1() }} Punkte</p>

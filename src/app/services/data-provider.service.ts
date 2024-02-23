@@ -128,6 +128,7 @@ export class DataProviderService {
   }
 
   public getPunkteBlock1(): number | undefined {
+    console.log('Hallo')
     return this.rechnePunkteBlock1(i => i, 0);
   }
 
@@ -139,7 +140,7 @@ export class DataProviderService {
     if (lfs.length !== 3) {
       return undefined;
     }
-    const punkteLfs = lfs.map(f => DataProviderService.sum(this.getHalbjahreForFach(f.typ).map(hj => getNote(this.getNoteFuer(f.id, hj, true, defaultValue, mapLeistungZuNote), f)), i => i)).sort();
+    const punkteLfs = lfs.map(f => DataProviderService.sum(this.getHalbjahreForFach(f.typ).map(hj => getNote(this.getNoteFuer(f.id, hj, true, defaultValue, mapLeistungZuNote), f)), i => i)).sort((a, b) => a - b);
     p += punkteLfs[0] + 2 * (punkteLfs[1] + punkteLfs[2])
 
     // Jetzt den Rest
@@ -147,7 +148,7 @@ export class DataProviderService {
     const anrechnungsPflichtig: number[] = [];
     let anderePunkte: number[] = [];
     for (let fach of rest) {
-      const noten = this.getHalbjahreForFach(fach.typ).map(hj => getNote(this.getNoteFuer(fach.id, hj, true, defaultValue, mapLeistungZuNote), fach)).sort();
+      const noten = this.getHalbjahreForFach(fach.typ).map(hj => getNote(this.getNoteFuer(fach.id, hj, true, defaultValue, mapLeistungZuNote), fach)).sort((a, b) => a - b);
       if (fach.typ === 'bf4') {
         anrechnungsPflichtig.push(...noten);
       }
@@ -164,7 +165,7 @@ export class DataProviderService {
       return undefined;
     }
 
-    anderePunkte = anderePunkte.sort().reverse();
+    anderePunkte = anderePunkte.sort((a, b) => b - a);
     p += DataProviderService.sum(anrechnungsPflichtig, i => i);
     p += DataProviderService.sum(anderePunkte.slice(0, 28 - anrechnungsPflichtig.length), i => i)
 
@@ -222,16 +223,16 @@ export class DataProviderService {
     return undefined;
   }
 
-  public getVerlorenePunkteBlock1(): number | undefined {
+  public getDefaultPunkteBlock1(def: number): number | undefined {
     const res = this.rechnePunkteBlock1((note: number, fach: Fach) => {
       if (!isNaN(note)) {
         return note;
       }
 
-      return 15;
+      return def;
     }, NaN, (l: Leistung) => {
       if (l.nochNichtErhalten === true) {
-        return 15;
+        return def;
       }
       return l.note;
     })
@@ -240,20 +241,42 @@ export class DataProviderService {
       return undefined;
     }
 
-    return 600 - res;
+    return res;
   }
 
-  public getVerlorenePunkteBlock2(): number | undefined {
-    return 300 - 4 * DataProviderService.sum(this.daten.abiPruefungen.map(abi => abi && abi.schonGeschrieben ? abi.note : 15), i => i)
+  public getDefaultPunkteBlock2(def: number): number {
+    return 4 * DataProviderService.sum(this.daten.abiPruefungen.map(abi => abi && abi.schonGeschrieben ? abi.note : def), i => i)
   }
 
-  public getVerlorenePunkteInsgesamt(): number | undefined {
-    const i = this.getVerlorenePunkteBlock1();
-    const ii = this.getVerlorenePunkteBlock2();
+  public getDefaultPunkteInsgesamt(def: number): number | undefined {
+    const i = this.getDefaultPunkteBlock1(def);
+    const ii = this.getDefaultPunkteBlock2(def);
     if (i !== undefined && ii !== undefined) {
       return i + ii;
     }
     return undefined;
+  }
+
+  public getVerlorenePunkteBlock1(): number | undefined {
+    const res = this.getDefaultPunkteBlock1(15);
+    if (res === undefined || res === null) {
+      return undefined;
+    }
+
+    return 600 - res;
+  }
+
+  public getVerlorenePunkteBlock2(): number | undefined {
+    return 300 - this.getDefaultPunkteBlock2(15);
+  }
+
+  public getVerlorenePunkteInsgesamt(): number | undefined {
+    const res = this.getDefaultPunkteInsgesamt(15);
+    if (res === undefined || res === null) {
+      return undefined;
+    }
+
+    return 900 - res;
   }
 
   public getSchnitt(): string {
@@ -262,6 +285,10 @@ export class DataProviderService {
 
   public getSchnittPrognose(): string {
     return this.getSchnittFuerPunkte(this.getPunkteInsgesamtPrognose())
+  }
+
+  public getSchnittDefault(def: number): string {
+    return this.getSchnittFuerPunkte(this.getDefaultPunkteInsgesamt(def))
   }
 
   public getSchnittFuerPunkte(punkte: number | undefined | null): string {
