@@ -1,6 +1,16 @@
 <h2>{{fach?.name}}</h2>
 
 <div *ngIf="this.fach">
+
+<select [(ngModel)]="this.fach.typ" title="Art des Fachs">
+    <option value="lf">Leistungsfach</option>
+    <option value="bf4">Basisfach (anrechnungspflichtig)</option>
+    <option value="bf2">Basisfach (2 Kurse anrechnungspflichtig)</option>
+    <option value="bf0">Basisfach (nicht anrechnungspflichtig)</option>
+    <option value="wf2">Wahlfach (2 Kurse)</option>
+    <option value="wf4">Wahlfach (4 Kurse)</option>
+</select> <br><br>
+
     <button *ngIf="!this.hatAbiPruefung() && this.hatPlatzFuerAbipruefung()" (click)="this.abiPruefungHinzufuegen()">Abiturprüfung hinzufügen</button>
     <button *ngIf="this.hatAbiPruefung()" (click)="this.abiPruefungEntfernen()">Abiturprüfung entfernen</button>
  <div *ngFor="let i of this.halbjahre">

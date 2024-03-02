@@ -128,7 +128,6 @@ export class DataProviderService {
   }
 
   public getPunkteBlock1(): number | undefined {
-    console.log('Hallo')
     return this.rechnePunkteBlock1(i => i, 0);
   }
 

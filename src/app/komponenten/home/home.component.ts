@@ -44,11 +44,10 @@ export class HomeComponent {
 
   public fachHinzufuegen() {
     const name = prompt('Name?')
-    const typ = prompt('Typ?')
-    if (name && typ)
+    if (name)
     this.dataProviderService.fachHinzufuegen({
       name: name,
-      typ: typ as Typ,
+      typ: 'bf4',
       id: this.dataProviderService.getNewIdForFach(),
       leistungen: [],
       gewichtungen: [[], [], [], []]
